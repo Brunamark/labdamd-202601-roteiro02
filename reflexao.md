@@ -33,3 +33,15 @@ O health checker que vai marcar as instâncias (passing ou critical) e fica perg
   
     Apache ZooKeeper — sistema de coordenação distribuída originalmente desenvolvido no Yahoo, amplamente adotado no ecossistema Hadoop/Kafka. Usa znodes efêmeros: quando a conexão do serviço cai, o znode é removido automaticamente, notificando os watchers registrados. É mais verboso que etcd, mas ainda presente em stacks legadas e no próprio Kafka para eleição de líder.
 
+## Tarefa 3
+
+- O princípio de separação entre estado e lógica computacional significa que você deve evitar misturar:
+
+  - estado: os dados, valores e informações que o sistema mantém
+
+  - lógica computacional: as regras, cálculos e decisões que operam sobre esses dados
+  
+    Isso demonstra que ao colocar um store externo independente da instância  ( Redis) e separar a lógica das decisões da instância, faz com que haja transparência de instância, ou seja, o usuário não consegue perceber em qual instância os seus dados estão persistidos, fazendo com que haja maior confiabilidade.
+
+- Variável global em memória mesmo com as duas instâncias na mesma máquina física não funcionam porque dois processos não compartilham memória. Cada processo tem o seu prórpio espaço na memória no sistema operacional, ou seja, um processo A escreve o estado na memória mas o processo B não vai ler dessa mesmo endereço de memória.
+
