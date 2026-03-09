@@ -58,3 +58,9 @@ O health checker que vai marcar as instâncias (passing ou critical) e fica perg
   - Entrega duplicada — a mensagem é enviada via `_ws.send()`, mas a confirmação não chega antes da reconexão. O buffer reenvia a mesma mensagem na nova conexão — o servidor recebe duas vezes.
 - Flag booleana só representa dois estados: true or false, e nesse caso, precisamos de 3 estados diferentes com 3 comportamentos distintos.
 - Live migration de VMs — quando um hypervisor (como VMware ou KVM) precisa mover uma máquina virtual de um servidor físico para outro sem desligar. A VM continua rodando, conexões de rede continuam ativas, o usuário não percebe. 
+  
+## Tarefa 5
+
+- Read-your-writes consistency é uma garantia de consistência em que, depois que você grava um dado, suas próximas leituras já enxergam essa própria gravação. Sendo assim, o código não implementa porque um exmeplo de um usuário que escreveu algo, vai para o master mas quando o mesmo usuário precisar ler em sequência, não vai conseguir proque a réplica tem um atraso de sincronização com a master e o código atual não tem como saber se a réplica já recebeu a escrita mais recente. 
+- Uma mudança que pode ser realizada é após a escrita, forçar as leituras daquele usuário para a master e quando receber um token de sincronização, a leitura será redirecionada para a réplica.
+
