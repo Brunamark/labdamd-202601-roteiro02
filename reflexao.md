@@ -64,3 +64,26 @@ O health checker que vai marcar as instâncias (passing ou critical) e fica perg
 - Read-your-writes consistency é uma garantia de consistência em que, depois que você grava um dado, suas próximas leituras já enxergam essa própria gravação. Sendo assim, o código não implementa porque um exmeplo de um usuário que escreveu algo, vai para o master mas quando o mesmo usuário precisar ler em sequência, não vai conseguir proque a réplica tem um atraso de sincronização com a master e o código atual não tem como saber se a réplica já recebeu a escrita mais recente. 
 - Uma mudança que pode ser realizada é após a escrita, forçar as leituras daquele usuário para a master e quando receber um token de sincronização, a leitura será redirecionada para a réplica.
 
+## Tarefa 6
+
+- Respondida acima.
+- Isso é fundamentalmente diferente porque um servidor externo aos dois processos consegue gerenciar ambos os processos para saber qual processo está com o lock para travar o segundo processo e um trheading.lock() que funciona dentro de um único processo só vai conseguir pegar o lock baseado naquele processo, nos métodos do próprio processo e um segundo processo não consegue enxergar o lock do primeiro processo e executa de maneira concorrente.
+- Justamente o EX que é um time to live do processo que se travar, o tempo vai estourar e o EX vai liberar o processo para não causar deadlock. O risco residual seria o processo A pode terminar a seção crítica após o TTL expirar. O fluxo problemático seria:
+```
+Processo A adquire o lock (TTL = 5s)
+
+Processo A trava por 6s (GC longo, swap de memória, etc)
+
+TTL expira — Redis deleta o lock automaticamente
+
+Processo B adquire o lock — entra na seção crítica
+
+Processo A "acorda" e termina — executa o finally
+
+finally chama r.delete(key) — deleta o lock do Processo B
+
+Processo C adquire o lock — agora A e C estão na seção crítica simultaneamente
+```
+O finally do processo A deletou o lock que não era mais dele. O TTL resolveu o deadlock mas criou uma janela de race condition de novo.
+A solução para isso é o processo A gravar um token único no lock na hora que adquire, e só deletar se o token ainda for o dele, garantindo que não deleta o lock de outro processo. Isso é o que o Redlock (algoritmo oficial do Redis para locks distribuídos) implementa.
+
