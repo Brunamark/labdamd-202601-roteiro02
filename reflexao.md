@@ -102,3 +102,17 @@ A solução para isso é o processo A gravar um token único no lock na hora que
 "A rede é confiável" - o código assume que a chamada sempre vai retornar um resultado válido. Não trata falha de conexão, o que gera quebra no cogio de uma exceção não tratada.
 
 - async/await quebra a transparência sintaticamente pois o await é uma marca visual obrigatória no código que indica para o desenvolvedor que pode falhar naquele trecho. Nesse caso é uma boa opção porque o desenvolvedor é forçado a perceber que há uma exceção que precisa ser tratada, evitando que falhas de rede quebrem o código silenciosamente igual ao anti_pattern.
+
+
+## Bloco de reflexão obrigatória
+
+1) Transparência de relocação porque precisa garantir que o buffer de mensagem seja enviada em ordem e enviem extamente apenas uma vez, exigindo que haja um token de confirmação de sincronização da réplica.No código relocacao_websocket.py, o _message_buffer armazena mensagens durante MIGRATING, mas se o processo travar antes do finally, o buffer é perdido, demonstrando que exactly-once é difícil de garantir mesmo com buffer explícito.
+   
+2) Nos jogos de fps, como Counter Strike, transparência de latência seria péssimo, uma vez que o jogador precisa saber o que está causando o lag, pois pode ser problema de super aquecimento do computador ou até mesmo falta de memória, logo quando exibe a latência como um problema, o jogador sabe que é erro na rede.
+   
+3)  Foi explicado na tarefa 7 que async/await quebra a transparência sintaticamente pois o await é uma marca visual obrigatória no código que indica para o desenvolvedor que pode falhar naquele trecho. Nesse caso é uma boa opção porque o desenvolvedor é forçado a perceber que há uma exceção que precisa ser tratada, evitando que falhas de rede quebrem o código silenciosamente igual ao anti_pattern.
+4)  Já está explicado na tarefa 6: 
+> **Por que `multiprocessing` e nao `threading`?**
+> O CPython possui o GIL (*Global Interpreter Lock*), que impede que duas threads executem bytecode Python simultaneamente no mesmo processo. Isso significa que uma race condition com `threading` pode nao se manifestar de forma reproduzivel — tornando a demonstracao pedagogicamente imprecisa. Com `multiprocessing` cada processo tem seu proprio espaco de memoria e proprio GIL: a race condition e real, reproduzivel, e reflete com mais fidelidade o cenario de sistemas distribuidos, onde os processos concorrentes estao em maquinas diferentes.
+
+5) A minha maior dificuldade foi entender o código da tarefa 5. Consegui entender bem o conceito mas fiquei com dificuldade de seguir a lógica principalmente pelo conhecimento mais limitado de python, sendo necessário pedir uma parte para a IA me explicar trechos.
