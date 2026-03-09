@@ -45,3 +45,16 @@ O health checker que vai marcar as instâncias (passing ou critical) e fica perg
 
 - Variável global em memória mesmo com as duas instâncias na mesma máquina física não funcionam porque dois processos não compartilham memória. Cada processo tem o seu prórpio espaço na memória no sistema operacional, ou seja, um processo A escreve o estado na memória mas o processo B não vai ler dessa mesmo endereço de memória.
 
+## Tarefa 4
+
+- Migração (Tarefa 3) — o processo A encerra, os dados já estão no Redis, o processo B sobe e lê. Há uma janela de tempo entre um e outro. A conexão do usuário é interrompida e reestabelecida.
+  Relocação — a conexão nunca cai do ponto de vista do usuário. Enquanto a transferência acontece, mensagens continuam chegando. Isso é mais difícil porque você precisa:
+
+    - Manter o estado MIGRATING para bufferizar mensagens durante a transição
+    - Garantir que nenhuma mensagem seja perdida ou duplicada
+    - Reconectar e drenar o buffer na ordem certa
+- Não garante. Dois cenários problemáticos:
+  - Perda de mensagem — se o processo travar enquanto `state == MIGRATING`, o buffer está só em memória. Tudo que estava no _message_buffer some junto com o processo.
+  - Entrega duplicada — a mensagem é enviada via `_ws.send()`, mas a confirmação não chega antes da reconexão. O buffer reenvia a mesma mensagem na nova conexão — o servidor recebe duas vezes.
+- Flag booleana só representa dois estados: true or false, e nesse caso, precisamos de 3 estados diferentes com 3 comportamentos distintos.
+- Live migration de VMs — quando um hypervisor (como VMware ou KVM) precisa mover uma máquina virtual de um servidor físico para outro sem desligar. A VM continua rodando, conexões de rede continuam ativas, o usuário não percebe. 
