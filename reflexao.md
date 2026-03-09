@@ -87,3 +87,18 @@ Processo C adquire o lock — agora A e C estão na seção crítica simultaneam
 O finally do processo A deletou o lock que não era mais dele. O TTL resolveu o deadlock mas criou uma janela de race condition de novo.
 A solução para isso é o processo A gravar um token único no lock na hora que adquire, e só deletar se o token ainda for o dele, garantindo que não deleta o lock de outro processo. Isso é o que o Redlock (algoritmo oficial do Redis para locks distribuídos) implementa.
 
+## Tarefa 7
+
+- As 8 falácias são:
+     1) A rede é confiável
+     2) A latência é zero
+     3) A largura de banda é infinita
+     4) A rede é segura
+     5) A topologia não muda
+     6) Existe apenas um administrador
+     7) O custo de transporte é zero
+     8) A rede é homogênea
+   
+"A rede é confiável" - o código assume que a chamada sempre vai retornar um resultado válido. Não trata falha de conexão, o que gera quebra no cogio de uma exceção não tratada.
+
+- async/await quebra a transparência sintaticamente pois o await é uma marca visual obrigatória no código que indica para o desenvolvedor que pode falhar naquele trecho. Nesse caso é uma boa opção porque o desenvolvedor é forçado a perceber que há uma exceção que precisa ser tratada, evitando que falhas de rede quebrem o código silenciosamente igual ao anti_pattern.
